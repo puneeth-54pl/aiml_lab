@@ -1,0 +1,64 @@
+from sklearn.datasets import load_iris
+import pandas as pd
+
+iris = load_iris()
+
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+
+print(df.head())
+print(f"Shape of the dataset: {df.shape}")
+print(f"Dataset Structure: \n{df.info()}")
+print(f"Summary statistics: \n{df.describe()}")
+print(f"Missing values: \n{df.isnull().sum()}")
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Plot histogram for Sepal Length
+sns.histplot(df['sepal length (cm)'], kde=True, bins=20)
+plt.title('Histogram of Sepal Length')
+plt.show()
+
+# Plot histogram for Petal Length
+sns.histplot(df['petal length (cm)'], kde=True, bins=20)
+plt.title('Histogram of Petal Length')
+plt.show()
+plt.figure(figsize=(10, 6))
+sns.violinplot(x='species', y='sepal length (cm)', data=df)
+plt.title('Violin Plot of Sepal Length by Species')
+plt.show()
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='species', y='petal length (cm)', data=df)
+plt.title('Box Plot of Petal Length by Species')
+plt.show()
+# Example: Removing outliers using the IQR method (optional)
+Q1 = df['petal length (cm)'].quantile(0.25)
+Q3 = df['petal length (cm)'].quantile(0.75)
+IQR = Q3 - Q1
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+df_filtered = df[(df['petal length (cm)'] >= lower_bound) & (df['petal length (cm)'] <= upper_bound)]
+
+# Compute the correlation matrix
+correlation_matrix = df.iloc[:, :-1].corr()
+
+# Plot the heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title('Correlation Heatmap of Features')
+plt.show()
+
+from sklearn.preprocessing import StandardScaler
+
+# Initialize the scaler
+scaler = StandardScaler()
+
+# Create a copy of the DataFrame for standardized data
+df_scaled = df.copy()
+
+# Standardize the continuous variables (exclude the 'species' column)
+df_scaled.iloc[:, :-1] = scaler.fit_transform(df.iloc[:, :-1])
+
+# Show the first few rows of the standardized dataset
+print(df_scaled.head())
+
